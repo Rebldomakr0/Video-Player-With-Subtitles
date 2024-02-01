@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player with Subtitles</title>
+</head>
+<body>
+  <video id="videoPlayer" width="1000" height="580" controls>
+    <source src="video1.mp4" type="video/mp4">
+    <track label="Spanish" kind="subtitles" srclang="es" src="subtitles1.vtt" default>
+  </video>
+
+  <div>
+    <button id="playPauseBtn">Play/Pause</button>
+    <button id="stopBtn">Stop</button>
+    <button id="nextVideoBtn">Next Video</button>
+  </div>
+
+  <script src="recognition.js"></script>
+  <script>
+    const videoPlayer = document.getElementById('videoPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const nextVideoBtn = document.getElementById('nextVideoBtn');
+
+    const videos = ['video1.mp4', 'video2.mp4', 'video3.mp4', 'video4.mp4'];
+    const subtitles = ['subtitles1.vtt', 'subtitles2.vtt', 'subtitles3.vtt', 'subtitles4.vtt'];
+    let currentVideoIndex = 0;
+
+    videoPlayer.addEventListener('ended', playNextVideo);
+
+    function playNextVideo() {
+      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+      loadVideoAndSubtitles();
+      videoPlayer.play();
+    }
+
+    function loadVideoAndSubtitles() {
+      videoPlayer.src = videos[currentVideoIndex];
+      videoPlayer.textTracks[0].src = subtitles[currentVideoIndex];
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      if (videoPlayer.paused) {
+        videoPlayer.play();
+      } else {
+        videoPlayer.pause();
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      videoPlayer.pause();
+      videoPlayer.currentTime = 0;
+    });
+
+    nextVideoBtn.addEventListener('click', playNextVideo);
+  </script>
+</body>
+</html>
