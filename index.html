@@ -1,60 +1,181 @@
+<!--
+  ,-.       _,---._ __  / \
+ /  )    .-'       `./ /   \
+(  (   ,'            `/    /|
+ \  `-"             \'\   / |
+  `.              ,  \ \ /  |
+   /`.          ,'-`----Y   |
+  (            ;        |   '
+  |  ,-.    ,-'         |  /
+  |  | (   |        kit | /
+  )  |  \  `.___________|/
+  `--'   `--'
+  -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Player with Subtitles</title>
+  <title>You're gonna carry that weight</title>
+  <link rel="shortcut icon" href="images/edsymbol.jpg" type="image/x-icon">
+  <style>
+    body {
+      background: url("images/hubble1.jpg") repeat;
+      -webkit-animation: scrolling 15s linear infinite;
+      -moz-animation: scrolling 15s linear infinite;
+      -o-animation: scrolling 15s linear infinite;
+      animation: scrolling 15s linear infinite;
+      background-color: black;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'varela-round', sans-serif;
+    }
+
+    @font-face {
+      font-family: 'varela-round';
+      src: url('fonts/VarelaRound-Regular.ttf') format('truetype'); 
+    }
+
+    @keyframes scrolling {
+      from {
+        background-position: 0 0;
+      }
+      to {
+        background-position: -256px 256px;
+      }
+    }
+
+    #container {
+      text-align: center;
+    }
+
+    #marquee-container {
+      background-color: #F3F2F2;
+      padding: 10px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 800px; 
+      border-radius: 5px;
+    }
+
+    #marquee {
+      color: black;
+      font-size: 18px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
-  <video id="videoPlayer" width="1000" height="580" controls>
-    <source src="video1.mp4" type="video/mp4">
-    <track label="Spanish" kind="subtitles" srclang="es" src="subtitles1.vtt" default>
-  </video>
+  <div id="container">
+    <div id="marquee-container">
+      <marquee id="marquee" direction="left" behavior="scroll" scrollamount="8" scrolldelay="85" loop="infinite">
+        【INFO】 Mira el video completo <a href="https://images.nasa.gov/" style="text-decoration: none; color: black;">《aquí》</a>
+      </marquee>
+    </div>
+    <video id="videoPlayer" width="800" height="450" controls>
+      <source id="videoSource" src="https://images-assets.nasa.gov/video/Orion_Artemis-I_b-roll_9_2021_FS/Orion_Artemis-I_b-roll_9_2021_FS~medium.mp4" type="video/mp4">
+      <track label="Spanish" kind="subtitles" srclang="es" src="subtitles1.vtt" default>
+    </video>
 
-  <div>
-    <button id="playPauseBtn">Play/Pause</button>
-    <button id="stopBtn">Stop</button>
-    <button id="nextVideoBtn">Next Video</button>
+    <div>
+      <button id="playPauseBtn">Reproducir/Pausa</button>
+      <button id="stopBtn">Reiniciar</button>
+      <button id="nextVideoBtn">Siguiente Video</button>
+      <button id="startVoiceRecognitionBtn">Activar Reconocimiento de Voz</button>
+    </div>
   </div>
+  
+  <iframe src="recognition.html" allow="microphone" style="display: none;"></iframe>
 
-  <script src="recognition.js"></script>
   <script>
     const videoPlayer = document.getElementById('videoPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const stopBtn = document.getElementById('stopBtn');
     const nextVideoBtn = document.getElementById('nextVideoBtn');
-
-    const videos = ['video1.mp4', 'video2.mp4', 'video3.mp4', 'video4.mp4'];
-    const subtitles = ['subtitles1.vtt', 'subtitles2.vtt', 'subtitles3.vtt', 'subtitles4.vtt'];
+    const startVoiceRecognitionBtn = document.getElementById('startVoiceRecognitionBtn');
     let currentVideoIndex = 0;
+    const videos = [
+      'https://images-assets.nasa.gov/video/Orion_Artemis-I_b-roll_9_2021_FS/Orion_Artemis-I_b-roll_9_2021_FS~medium.mp4',
+      'https://images-assets.nasa.gov/video/NHQ_2018_0131_Super%20Blue%20Moon%20Lunar%20Eclipse/NHQ_2018_0131_Super%20Blue%20Moon%20Lunar%20Eclipse~large.mp4',
+      'https://images-assets.nasa.gov/video/GSFC_20190627_TESS_m13223_L98-59b_Full_Rotation/GSFC_20190627_TESS_m13223_L98-59b_Full_Rotation~large.mp4',
+      'https://images-assets.nasa.gov/video/Artemis%20I%20Launch%202022%20CU%20tracking%20from%20Press%20Site_compressed/Artemis%20I%20Launch%202022%20CU%20tracking%20from%20Press%20Site_compressed~large.mp4'
+    ];
 
-    videoPlayer.addEventListener('ended', playNextVideo);
-
-    function playNextVideo() {
-      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-      loadVideoAndSubtitles();
-      videoPlayer.play();
+    function processVoiceCommand(command) {
+      switch (command.toLowerCase()) {
+        case 'reproducir':
+        case 'play':
+        case 'reproduce':
+          if (videoPlayer.paused) {
+            videoPlayer.play();
+          }
+          break;
+        case 'pausa':
+        case 'pausar':
+        case 'pausa el video':
+        case 'detener':
+          if (!videoPlayer.paused) {
+            videoPlayer.pause();
+          }
+          break;
+        case 'siguiente':
+        case 'próximo':
+        case 'siguiente video':
+        case 'next':
+          playNextVideo();
+          break;
+      }
     }
 
-    function loadVideoAndSubtitles() {
-      videoPlayer.src = videos[currentVideoIndex];
-      videoPlayer.textTracks[0].src = subtitles[currentVideoIndex];
+    function handleVoiceRecognition(event) {
+      const command = event.results[0][0].transcript;
+      processVoiceCommand(command);
     }
 
-    playPauseBtn.addEventListener('click', () => {
+    const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'es-ES';
+    recognition.onresult = handleVoiceRecognition;
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    stopBtn.addEventListener('click', stopVideo);
+    nextVideoBtn.addEventListener('click', playNextVideo);
+    startVoiceRecognitionBtn.addEventListener('click', () => {
+      recognition.start();
+    });
+
+    function togglePlayPause() {
       if (videoPlayer.paused) {
         videoPlayer.play();
       } else {
         videoPlayer.pause();
       }
-    });
+    }
 
-    stopBtn.addEventListener('click', () => {
+    function stopVideo() {
       videoPlayer.pause();
       videoPlayer.currentTime = 0;
-    });
+    }
 
-    nextVideoBtn.addEventListener('click', playNextVideo);
+    function playNextVideo() {
+      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+      videoPlayer.src = videos[currentVideoIndex];
+      videoPlayer.play();
+    }
+    
+    videoPlayer.addEventListener('timeupdate', () => {
+      if (videoPlayer.currentTime >= 20) {
+        videoPlayer.pause();
+      }
+    });
   </script>
 </body>
 </html>
