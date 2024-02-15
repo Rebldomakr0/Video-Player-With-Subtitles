@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>See you, space cowboy</title>
+  <link rel="shortcut icon" href="images/edsymbol.jpg" type="image/x-icon">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'varela-round', sans-serif;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    body {
+      background-color: black;
+      text-align: center;
+      padding-top: 100px;
+    }
+    @font-face {
+      font-family: 'varela-round';
+      src: url('fonts/VarelaRound-Regular.ttf') format('truetype'); 
+    }
+    h2 {
+      color: white;
+    }
+	
+	p {
+	color: white;
+	}
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+<marquee><h2>See ya' space cowboy</h2></marquee>
+<a href="index.html"><img src="images/plnt.png" alt="Earth" width="420" height="420"></a>
+<p>Presiona la imagen para acceder al reproductor de video.</p>
+
+<canvas id="backgroundCanvas"></canvas>
+
+<script>
+  var canvas = document.getElementById('backgroundCanvas');
+  var ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  var characterList = ['·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·', '·'];
+
+  var layers = {
+      n: 5,
+      letters: [100, 40, 30, 20, 10],
+      coef: [0.1, 0.2, 0.4, 0.6, 0.8],
+      size: [16, 22, 36, 40, 46],
+      color: ['#fff', '#eee', '#ccc', '#bbb', '#aaa'],
+      font: 'Courier'
+  };
+
+  var characters = [];
+  var mouseX = window.innerWidth / 2;
+  var mouseY = window.innerHeight / 2;
+
+  var rnd = {
+      btwn: function(min, max) {
+          return Math.floor(Math.random() * (max - min) + min);
+      },
+      choose: function(list) {
+          return list[rnd.btwn(0, list.length)];
+      }
+  };
+
+  function drawLetter(char) {
+      ctx.font = char.size + 'px ' + char.font;
+      ctx.fillStyle = char.color;
+
+      var x = char.posX + (mouseX - canvas.width / 2) * char.coef;
+      var y = char.posY + (mouseY - canvas.height / 2) * char.coef;
+
+      ctx.fillText(char.char, x, y);
+  }
+
+  document.onmousemove = function(ev) {
+      mouseX = ev.pageX;
+      mouseY = ev.pageY;
+
+      if (window.requestAnimationFrame) {
+          requestAnimationFrame(update);
+      } else {
+          update();
+      }
+  };
+
+  function update() {
+      clear();
+      render();
+  }
+
+  function clear() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function render() {
+      for (var i = 0; i < characters.length; i++) {
+          drawLetter(characters[i]);
+      }
+  }
+
+  function createLetters() {
+      for (var i = 0; i < layers.n; i++) {
+          for (var j = 0; j < layers.letters[i]; j++) {
+
+              var character = rnd.choose(characterList);
+              var x = rnd.btwn(0, canvas.width);
+              var y = rnd.btwn(0, canvas.height);
+
+              characters.push({
+                  char: character,
+                  font: layers.font,
+                  size: layers.size[i],
+                  color: layers.color[i],
+                  layer: i,
+                  coef: layers.coef[i],
+                  posX: x,
+                  posY: y
+              });
+
+          }
+      }
+  }
+
+  createLetters();
+  update();
+
+  window.onresize = function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      createLetters();
+      update();
+  };
+</script>
+</body>
+</html>
+
+

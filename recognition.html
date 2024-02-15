@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comandos de Voz</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
+</head>
+<body>
+  <script>
+    // Definir currentVideoIndex si aún no está definida
+    if (typeof currentVideoIndex === 'undefined') {
+      var currentVideoIndex = 0; // Puedes inicializarla con el valor que necesites
+    }
+
+    const videoPlayer = document.getElementById('videoPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const nextVideoBtn = document.getElementById('nextVideoBtn');
+
+    // Función para procesar los comandos de voz
+    function processVoiceCommand(command) {
+      switch (command.toLowerCase()) {
+        case 'reproducir':
+        case 'play':
+		case 'reproduce':
+          if (videoPlayer.paused) {
+            videoPlayer.play();
+          }
+          break;
+        case 'pausa':
+        case 'pausar':
+        case 'pausa el video':
+        case 'detener':
+          if (!videoPlayer.paused) {
+            videoPlayer.pause();
+          }
+          break;
+        case 'siguiente':
+        case 'próximo':
+        case 'siguiente video':
+		case 'next':
+          playNextVideo();
+          break;
+      }
+    }
+
+    // Función para manejar el evento de reconocimiento de voz
+    function handleVoiceRecognition(event) {
+      const command = event.results[0][0].transcript;
+      processVoiceCommand(command);
+    }
+
+    // Inicializar el reconocimiento de voz
+    if (annyang) {
+      const commands = {
+        'reproducir': () => {
+          if (videoPlayer.paused) {
+            videoPlayer.play();
+          }
+        },
+        'pausa': () => {
+          if (!videoPlayer.paused) {
+            videoPlayer.pause();
+          }
+        },
+        'siguiente': () => {
+          playNextVideo();
+        }
+      };
+      annyang.addCommands(commands);
+      annyang.start();
+    } else {
+      console.log("Annyang no está disponible o no es compatible con este navegador.");
+    }
+
+    // Agrega eventos de clic a los botones
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    stopBtn.addEventListener('click', stopVideo);
+    nextVideoBtn.addEventListener('click', playNextVideo);
+
+    // Función para alternar entre reproducir y pausar el video
+    function togglePlayPause() {
+      if (videoPlayer.paused) {
+        videoPlayer.play();
+      } else {
+        videoPlayer.pause();
+      }
+    }
+
+    // Función para detener el video y reiniciarlo
+    function stopVideo() {
+      videoPlayer.pause();
+      videoPlayer.currentTime = 0;
+    }
+
+    // Función para reproducir el siguiente video
+    function playNextVideo() {
+      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+      loadVideoAndSubtitles();
+      videoPlayer.play();
+    }
+
+    // Evento de clic en el video para iniciar el reconocimiento de voz
+    videoPlayer.addEventListener('click', () => {
+      if (annyang) {
+        annyang.start();
+      }
+    });
+  </script>
+</body>
+</html>
+
+
